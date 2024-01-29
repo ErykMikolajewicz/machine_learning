@@ -1,0 +1,22 @@
+[project]
+name = "machine_learning"
+version = "0.1.0"
+description = "Default template for PDM package"
+authors = [
+    {name = "Eryk Mikolajewicz", email = "eryk.mikolajewicz@gmail.com"},
+]
+dependencies = [
+    "scikit-learn==1.4.0",
+    "matplotlib==3.8.2",
+    "seaborn==0.13.1",
+    "pyarrow==15.0.0",
+    "polars==0.20.6",
+    "hvplot==0.9.1",
+]
+requires-python = "==3.12.*"
+readme = "README.md"
+license = {text = "MIT"}
+
+
+[tool.pdm]
+distribution = false
