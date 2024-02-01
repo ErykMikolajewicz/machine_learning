@@ -6,6 +6,7 @@ import seaborn
 import matplotlib.pyplot as plt
 
 from sklearn.naive_bayes import BernoulliNB
+from sklearn.tree import DecisionTreeClassifier
 
 
 data = pl.read_csv('./data/diabetes.csv')
@@ -76,3 +77,32 @@ print('test score:', round(testing_score, 2))
 # 86% for training and 85% for test, not bad for first model.
 
 
+bnb = DecisionTreeClassifier()
+bnb.fit(training_features, training_target)
+training_score = bnb.score(training_features, training_target)
+print('\n--------------------- decision tree ---------------------')
+print('training score:', round(training_score, 2))
+testing_score = bnb.score(testing_features, testing_target)
+print('test score:', round(testing_score, 2))
+# Look some better, 90% for training and 88% for test, model don't look very overfit,
+# what is easily possible with than just decision tree
+
+# Try to use decision tree with all features, and overfit it
+
+training_features = training_set
+testing_features = testing_set
+
+bnb = DecisionTreeClassifier()
+bnb.fit(training_features, training_target)
+training_score = bnb.score(training_features, training_target)
+print('\n--------------------- decision tree all features ---------------------')
+print('training score:', round(training_score, 2))
+testing_score = bnb.score(testing_features, testing_target)
+print('test score:', round(testing_score, 2))
+# Ok it was some unexpected for me 100% on train, and 100% on test.
+# The feature selecting was too restrictive, and I loose relevant information
+
+# These data set is seem to easy to predict everything correct,
+# It is still place for improvement, some features are certainly unnecessary,
+# Also it is probably possible to choose model with less computation resources need
+# However I want to try some automated machine learning with harder to predict output data
