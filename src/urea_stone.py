@@ -1,5 +1,5 @@
 import polars as pl
-import seaborn
+import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import LinearSVC, SVC
@@ -25,11 +25,10 @@ print(coefficient_of_variation)
 
 # Making plot for Pearson correlation
 correlation = data.corr()
-columns_names = correlation.schema.keys()
-axes = seaborn.heatmap(correlation, xticklabels=columns_names, yticklabels=columns_names, annot=True, cbar=False)
+columns_names = data.columns
+axes = sns.heatmap(correlation, xticklabels=columns_names, yticklabels=columns_names, annot=True, cbar=False)
 axes.xaxis.tick_top()
-fig = axes.get_figure()
-fig.savefig('./plots/urea_stone/correlation_plot')
+plt.show()
 # pH and cond have very week relation to target, they are necessary to drop
 # Another problem is high collinearity between some values, especially:
 # gravity - urea - osmo
@@ -47,14 +46,11 @@ print('Majority group occurrence:', majority_group)
 
 # Looking for data distribution
 
-for column_name in columns_names:
-    if column_name == 'target':
-        continue
-    plt.clf()
-    plotting_data = data.get_column(column_name)
-    axes = seaborn.histplot(plotting_data)
-    fig = axes.get_figure()
-    fig.savefig(f'./plots/urea_stone/histograms/{column_name}')
+figure, axes = plt.subplots(2, 3, figsize=(25, 25))
+for ax, column_name in zip(axes.flat, columns_names):
+    histogram = sns.histplot(data.select(column_name), color="skyblue", ax=ax, legend=False).set(xlabel=column_name)
+
+plt.show()
 # Most distributions look like normal distribution with skewness
 # Calc distribution is very not look as normal distribution.
 
@@ -86,9 +82,8 @@ testing_features = test_set.select(pl.col('urea', 'calc'))
 
 # Plot the scatter plot
 plt.clf()
-axes = seaborn.scatterplot(x=data.get_column('urea'), y=data.get_column('calc'), hue=data.get_column('target'))
-fig = axes.get_figure()
-fig.savefig('./plots/urea_stone/urea_calcium_scatterplot')
+sns.scatterplot(x=data.get_column('urea'), y=data.get_column('calc'), hue=data.get_column('target'))
+plt.show()
 # The points with same target are apparently closer, some outliers are in groups of other colors
 # Also points in boundaries can be hard to classify, but I can see some potential for this data, and algorithm
 
@@ -109,9 +104,8 @@ print('test score:', round(testing_score, 2))
 
 # Plot another scatter plot
 plt.clf()
-axes = seaborn.scatterplot(x=data.get_column('gravity'), y=data.get_column('calc'), hue=data.get_column('target'))
-fig = axes.get_figure()
-fig.savefig('./plots/urea_stone/gravity_calcium_scatterplot')
+sns.scatterplot(x=data.get_column('gravity'), y=data.get_column('calc'), hue=data.get_column('target'))
+plt.show()
 # Hard to say is it look better, there still are outliers, and hard to classify points on boards
 
 training_features = train_set.select(pl.col('gravity', 'calc'))

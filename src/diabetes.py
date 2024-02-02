@@ -2,7 +2,7 @@ from math import ceil, floor
 
 import polars as pl
 import polars.selectors as cs
-import seaborn
+import seaborn as sns
 import matplotlib.pyplot as plt
 
 from sklearn.naive_bayes import BernoulliNB
@@ -37,9 +37,10 @@ relevant_correlation = relevant_correlation.filter(pl.col('column_name') != 'cla
 relevant_correlation = relevant_correlation.sort('correlation_to_target')
 
 relevant_columns = relevant_correlation.get_column('column_name')
-ax = seaborn.barplot(x=relevant_columns, y=relevant_correlation.get_column('correlation_to_target'))
-ax.tick_params(axis='x', labelrotation=45)
-plt.savefig('./plots/diabetes/target_correlations')
+ax = sns.barplot(x=relevant_columns, y=relevant_correlation.get_column('correlation_to_target'))
+ax.tick_params(axis='x', labelrotation=30)
+ax.set(xlabel='')
+plt.show()
 data = data.select(*relevant_columns, 'class')
 
 # All used data are actually a binary data, perhaps Bernoulli naive bayes is a good model
