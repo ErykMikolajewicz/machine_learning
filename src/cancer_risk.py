@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import ConfusionMatrixDisplay
 
 
 data = pl.read_csv('./data/cancer.csv')
@@ -83,4 +85,38 @@ testing_score = mnb.score(model_test_features, test_target)
 print('test score:', round(testing_score, 2))
 # Okay, one time more, better result, 80% for train model, and 84% for test, perhaps more features usually mean better
 
+# Testing more complex model for "relevant" features, I have chosen random forest tree
+
+model_train_features = train_features.select(*relevant_col_names)
+model_test_features = test_features.select(*relevant_col_names)
+
+rfc = RandomForestClassifier(max_depth=4, n_jobs=-1, random_state=42)
+rfc.fit(model_train_features, train_target)
+training_score = rfc.score(model_train_features, train_target)
+print('\n--------------------- Random Forest Classifier relevant features ---------------------')
+print('train score:', round(training_score, 2))
+testing_score = rfc.score(model_test_features, test_target)
+print('test score:', round(testing_score, 2))
+# Model is very good, and achieve 100% accuracy, with max_depth=5
+# I set max_depth to 4, to be able to plot confusing matrix
+# I think it can be useful for real applications, when accuracy is not best score
+# because predicting some values, here high cancer risk can be more important, than general accuracy
+
+confusion_matrix = ConfusionMatrixDisplay.from_estimator(
+    rfc,
+    model_test_features,
+    test_target,
+    display_labels=['Low', 'Medium', 'High'],
+    normalize='true',
+)
+confusion_matrix.ax_.set_title('Cancer risk confusion matrix')
+plt.show()
+
+
+# Conclusions:
+# There were multiple features in this data set
+# Drop some features, with low correlation to target was a good idea
+# Not for Naive Bayes, but more complex model get deal with that amount of information great
+# Using more features for Random Forest Classifier wasn't necessary
+# Even so, I'm not fully satisfied. That data set seem some artificial, and too easy
 

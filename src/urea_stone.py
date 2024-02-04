@@ -48,8 +48,7 @@ print('Majority group occurrence:', majority_group)
 
 figure, axes = plt.subplots(2, 3, figsize=(25, 25))
 for ax, column_name in zip(axes.flat, columns_names):
-    histogram = sns.histplot(data.select(column_name), color="skyblue", ax=ax, legend=False).set(xlabel=column_name)
-
+    sns.histplot(data.select(column_name), color="skyblue", ax=ax, legend=False).set(xlabel=column_name)
 plt.show()
 # Most distributions look like normal distribution with skewness
 # Calc distribution is very not look as normal distribution.
@@ -75,8 +74,8 @@ test_target = test_target.get_column('target')
 # I have decided to drop column gravity, because of small variation
 # osmo, is dropped because weaker relation to target than urea
 
-training_features = train_set.select(pl.col('urea', 'calc'))
-testing_features = test_set.select(pl.col('urea', 'calc'))
+train_features = train_set.select(pl.col('urea', 'calc'))
+test_features = test_set.select(pl.col('urea', 'calc'))
 
 # The first model to train will be k nearest neighbors, it works for non gaussian data and is simply
 
@@ -88,11 +87,11 @@ plt.show()
 # Also points in boundaries can be hard to classify, but I can see some potential for this data, and algorithm
 
 knn = KNeighborsClassifier(n_jobs=-1, n_neighbors=7)
-model = knn.fit(training_features, train_target)
-training_score = model.score(training_features, train_target)
+model = knn.fit(train_features, train_target)
+training_score = model.score(train_features, train_target)
 print('\n--------------------- knn model: urea, calcium ---------------------')
 print('training score:', round(training_score, 2))
-testing_score = model.score(testing_features, test_target)
+testing_score = model.score(test_features, test_target)
 print('test score:', round(testing_score, 2))
 
 # 56% in test score, not a success modifying neighbors number don't help
@@ -108,58 +107,58 @@ sns.scatterplot(x=data.get_column('gravity'), y=data.get_column('calc'), hue=dat
 plt.show()
 # Hard to say is it look better, there still are outliers, and hard to classify points on boards
 
-training_features = train_set.select(pl.col('gravity', 'calc'))
-testing_features = test_set.select(pl.col('gravity', 'calc'))
+train_features = train_set.select(pl.col('gravity', 'calc'))
+test_features = test_set.select(pl.col('gravity', 'calc'))
 
 knn = KNeighborsClassifier(n_jobs=-1, n_neighbors=7, weights='distance')
-model = knn.fit(training_features, train_target)
-training_score = model.score(training_features, train_target)
+model = knn.fit(train_features, train_target)
+training_score = model.score(train_features, train_target)
 print('\n--------------------- knn model: gravity, calcium ---------------------')
 print('training score:', round(training_score, 2))
-testing_score = model.score(testing_features, test_target)
+testing_score = model.score(test_features, test_target)
 print('test score:', round(testing_score, 2))
 # For n_neighbors=7 87% for training, and 62% for test, better, but still not very well
 
 # I will try with features rejected by to small relation to target, perhaps it will make a change
 
-training_features = train_set.select(pl.col('gravity', 'calc', 'ph', 'cond'))
-testing_features = test_set.select(pl.col('gravity', 'calc', 'ph', 'cond'))
+train_features = train_set.select(pl.col('gravity', 'calc', 'ph', 'cond'))
+test_features = test_set.select(pl.col('gravity', 'calc', 'ph', 'cond'))
 
 knn = KNeighborsClassifier(n_jobs=-1, n_neighbors=5)
-model = knn.fit(training_features, train_target)
-training_score = model.score(training_features, train_target)
+model = knn.fit(train_features, train_target)
+training_score = model.score(train_features, train_target)
 print('\n--------------------- knn model: include features with week correlation ---------------------')
 print('training score:', round(training_score, 2))
-testing_score = model.score(testing_features, test_target)
+testing_score = model.score(test_features, test_target)
 print('test score:', round(testing_score, 2))
 # Same result training set have accuracy with 87%, but test set is still 62%
 # better stay with gravity, and calc only, other params are noise.
 
 # Last try for knn, all features, without any data preparation:
 
-training_features = train_set
-testing_features = test_set
+train_features = train_set
+test_features = test_set
 
 knn = KNeighborsClassifier(n_jobs=-1, n_neighbors=3)
-model = knn.fit(training_features, train_target)
-training_score = model.score(training_features, train_target)
+model = knn.fit(train_features, train_target)
+training_score = model.score(train_features, train_target)
 print('\n--------------------- knn model: all features ---------------------')
 print('training score:', round(training_score, 2))
-testing_score = model.score(testing_features, test_target)
+testing_score = model.score(test_features, test_target)
 print('test score:', round(testing_score, 2))
 # Worst result for all, 85% in training, but only 50% in test
 
 # Test linear svc model with best output from knn
 
-training_features = train_set.select(pl.col('gravity', 'calc'))
-testing_features = test_set.select(pl.col('gravity', 'calc'))
+train_features = train_set.select(pl.col('gravity', 'calc'))
+test_features = test_set.select(pl.col('gravity', 'calc'))
 
 lsvc = LinearSVC(C=1, dual='auto', max_iter=10_000)
-lsvc.fit(training_features, train_target)
-training_score = lsvc.score(training_features, train_target)
+lsvc.fit(train_features, train_target)
+training_score = lsvc.score(train_features, train_target)
 print('\n--------------------- linear svc model: gravity, calc ---------------------')
 print('training score:', round(training_score, 2))
-testing_score = lsvc.score(testing_features, test_target)
+testing_score = lsvc.score(test_features, test_target)
 print('test score:', round(testing_score, 2))
 # Same result, as with knn model and same data 81% and 62%, perhaps it is all, what achievable,
 # changing C parameter seem to have no effect
@@ -167,25 +166,25 @@ print('test score:', round(testing_score, 2))
 # Test poly nominal svc model
 
 lsvc = SVC(C=1, max_iter=10_000, degree=3, kernel='poly')
-lsvc.fit(training_features, train_target)
-training_score = lsvc.score(training_features, train_target)
+lsvc.fit(train_features, train_target)
+training_score = lsvc.score(train_features, train_target)
 print('\n--------------------- poly svc model: gravity, calc ---------------------')
 print('training score:', round(training_score, 2))
-testing_score = lsvc.score(testing_features, test_target)
+testing_score = lsvc.score(test_features, test_target)
 print('test score:', round(testing_score, 2))
 # Slightly better, than with linear 83% for training, and 69% for test
 
 # Try svc with some collinear data removed in feature selection. Add urea data
 
-training_features = train_set.select(pl.col('gravity', 'calc', 'urea'))
-testing_features = test_set.select(pl.col('gravity', 'calc', 'urea'))
+train_features = train_set.select(pl.col('gravity', 'calc', 'urea'))
+test_features = test_set.select(pl.col('gravity', 'calc', 'urea'))
 
 lsvc = SVC(C=1, max_iter=10_000, degree=3, kernel='poly')
-lsvc.fit(training_features, train_target)
-training_score = lsvc.score(training_features, train_target)
+lsvc.fit(train_features, train_target)
+training_score = lsvc.score(train_features, train_target)
 print('\n--------------------- poly svc model: gravity, calc, urea ---------------------')
 print('training score:', round(training_score, 2))
-testing_score = lsvc.score(testing_features, test_target)
+testing_score = lsvc.score(test_features, test_target)
 print('test score:', round(testing_score, 2))
 # Much worst result 68% on training set, and 56% on test set, using urea data was a bad decision
 

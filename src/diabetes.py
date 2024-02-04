@@ -16,10 +16,10 @@ data = pl.read_csv('./data/diabetes.csv')
 # Change format for more useful to computation, integers instead strings
 data = data.select(
     pl.col('Age'),
-    pl.when(pl.col('Gender') == 'Male').then(1).when(pl.col("Gender") == 'Female').then(2).name.keep(),
+    pl.when(pl.col('Gender') == 'Male').then(1).when(pl.col('Gender') == 'Female').then(2).name.keep(),
     pl.when(cs.string().exclude('Gender', 'class') == 'Yes').then(1)
     .when(cs.string().exclude('Gender', 'class') == 'No').then(0).name.keep(),
-    pl.when(pl.col('class') == 'Positive').then(1).when(pl.col("class") == 'Negative').then(0).name.keep()
+    pl.when(pl.col('class') == 'Positive').then(1).when(pl.col('class') == 'Negative').then(0).name.keep()
 )
 
 correlation = data.corr()
@@ -31,7 +31,7 @@ print(correlation)
 # Drop columns with weak, and very week correlation to target
 target_correlation = correlation.get_column('class')
 columns_names = data.columns
-target_correlation = pl.DataFrame({"column_name": columns_names, "correlation_to_target": target_correlation})
+target_correlation = pl.DataFrame({'column_name': columns_names, 'correlation_to_target': target_correlation})
 relevant_correlation = target_correlation.filter(pl.col('correlation_to_target').abs() > 0.4)
 relevant_correlation = relevant_correlation.filter(pl.col('column_name') != 'class')
 relevant_correlation = relevant_correlation.sort('correlation_to_target')
@@ -48,7 +48,7 @@ data = data.select(*relevant_columns, 'class')
 rows_number = data.select(pl.len())
 rows_number = rows_number.item()
 print('Rows number:', rows_number)
-positive_numbers = data.select(pl.arg_where(pl.col("class") == 1)).select(pl.len())
+positive_numbers = data.select(pl.arg_where(pl.col('class') == 1)).select(pl.len())
 positive_numbers = positive_numbers.item()
 print('Positive_number:', positive_numbers)
 majority_group = round(max(positive_numbers, rows_number - positive_numbers)/rows_number*100, 2)
@@ -78,12 +78,12 @@ print('test score:', round(testing_score, 2))
 # 86% for training and 85% for test, not bad for first model.
 
 
-bnb = DecisionTreeClassifier()
-bnb.fit(training_features, training_target)
-training_score = bnb.score(training_features, training_target)
+dtc = DecisionTreeClassifier()
+dtc.fit(training_features, training_target)
+training_score = dtc.score(training_features, training_target)
 print('\n--------------------- decision tree ---------------------')
 print('training score:', round(training_score, 2))
-testing_score = bnb.score(testing_features, testing_target)
+testing_score = dtc.score(testing_features, testing_target)
 print('test score:', round(testing_score, 2))
 # Look some better, 90% for training and 88% for test, model don't look very overfit,
 # what is easily possible with than just decision tree
@@ -93,12 +93,12 @@ print('test score:', round(testing_score, 2))
 training_features = training_set
 testing_features = testing_set
 
-bnb = DecisionTreeClassifier()
-bnb.fit(training_features, training_target)
-training_score = bnb.score(training_features, training_target)
+
+dtc.fit(training_features, training_target)
+training_score = dtc.score(training_features, training_target)
 print('\n--------------------- decision tree all features ---------------------')
 print('training score:', round(training_score, 2))
-testing_score = bnb.score(testing_features, testing_target)
+testing_score = dtc.score(testing_features, testing_target)
 print('test score:', round(testing_score, 2))
 # Ok it was some unexpected for me 100% on train, and 100% on test.
 # The feature selecting was too restrictive, and I loose relevant information
