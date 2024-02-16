@@ -13,3 +13,15 @@ result is rater mediocre, but perhaps it is issue of data
 Classification with Naive Bayes, and decision tree
 Result is excellent with 100% accuracy in train, and test data, but one time more data issue
 Also some feature selection mistakes have been made
+
+3 cancer_risk:
+Prediction with multinomial Naive Bayes, and RandomForest
+Good results in prediction, some mistakes in thinking, about good model to choose
+
+4 perceptron
+My implementation of perceptron classifier, base on another implementation in book
+In that project I reimplement perceptron written with numpy to polars dataframes
+
+5 comparisons
+Actually comparison of numpy perceptron with polars perceptron execution time
+In future perhaps some more efficiency benchmarks
