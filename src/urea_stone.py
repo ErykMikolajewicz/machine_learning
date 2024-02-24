@@ -29,10 +29,10 @@ columns_names = data.columns
 axes = sns.heatmap(correlation, xticklabels=columns_names, yticklabels=columns_names, annot=True, cbar=False)
 axes.xaxis.tick_top()
 plt.show()
-# pH and cond have very week relation to target, they are necessary to drop
-# Another problem is high collinearity between some values, especially:
-# gravity - urea - osmo
-# cond - osmo
+""" pH and cond have very week relation to target, they are necessary to drop
+Another problem is high collinearity between some values, especially:
+gravity - urea - osmo
+cond - osmo"""
 
 rows_number = data.select(pl.len())
 rows_number = rows_number.item()
@@ -69,10 +69,10 @@ test_target = test_target.get_column('target')
 
 # Feature selection
 
-# I have decided to drop columns with small correlation to target
-# Also it's necessary to solve problem with collinearity
-# I have decided to drop column gravity, because of small variation
-# osmo, is dropped because weaker relation to target than urea
+""" I have decided to drop columns with small correlation to target
+Also it's necessary to solve problem with collinearity
+I have decided to drop column gravity, because of small variation
+osmo, is dropped because weaker relation to target than urea"""
 
 train_features = train_set.select(pl.col('urea', 'calc'))
 test_features = test_set.select(pl.col('urea', 'calc'))
@@ -94,10 +94,10 @@ print('training score:', round(training_score, 2))
 testing_score = model.score(test_features, test_target)
 print('test score:', round(testing_score, 2))
 
-# 56% in test score, not a success modifying neighbors number don't help
-# Using weight='distance' make awesome thing in training data, but not make much improvement on test scores
-# Perhaps feature selection was made bad
-# Try with gravity despite urea parameter, has better correlation with target
+""" 56% in test score, not a success modifying neighbors number don't help
+Using weight='distance' make awesome thing in training data, but not make much improvement on test scores
+Perhaps feature selection was made bad
+Try with gravity despite urea parameter, has better correlation with target"""
 
 # Feature selection, second approach, gravity instead urea
 
@@ -189,19 +189,18 @@ print('test score:', round(testing_score, 2))
 # Much worst result 68% on training set, and 56% on test set, using urea data was a bad decision
 
 
-# Conclusions:
-# Not using gravity, because of small variation wasn't good idea
-# Exclusion functions with high collinearity was good decision,
-# however it could by, because their low correlation to target
-# KNN model have better prognosis than majority group so is useful, but score is not impressing
-# Similarly svc model. SVC with poly nominal was slightly better, but it is probably not worth extra cost
-# in production environment, with dealing with more complex model
-# Perhaps approximately 70% for this model is all what is achievable
+"""Conclusions:
+Not using gravity, because of small variation wasn't good idea.
+Exclusion functions with high collinearity was good decision,
+however it could by, because their low correlation to target
+KNN model have better prognosis than majority group so is useful, but score is not impressing
+Similarly svc model. SVC with poly nominal was slightly better, but it is probably not worth extra cost
+in production environment, with dealing with more complex model
+Perhaps approximately 70% for this model is all what is achievable """
 
-# Actualization after using train_test_split to balance classes, before that it was:
-# "Training, and testing group are some unbalanced, despite various size have similar number of 1 in target 16 and 18"
-# Now it is 20 for larger fraction, and 14 for smaller set, but overall score is smaller approximately 5%,
-# so class balanced haven't helped
-# Perhaps it is not possible to achieve great accuracy with that data,
-# It is possible that trees models with cross validation can work better,
-# but I will try them in another script, with bigger data set
+"""Actualization after using train_test_split to balance classes, before that it was:
+"Training, and testing group are some unbalanced, despite various size have similar number of 1 in target 16 and 18"
+Now it is 20 for larger fraction, and 14 for smaller set, but overall score is smaller approximately 5%,
+so class balanced haven't helped. Perhaps it is not possible to achieve great accuracy with that data,
+It is possible that trees models with cross validation can work better,
+but I will try them in another script, with bigger data set """

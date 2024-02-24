@@ -1,7 +1,6 @@
 import polars as pl
 import seaborn as sns
 import matplotlib.pyplot as plt
-
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
@@ -22,13 +21,13 @@ columns_names = data.columns
 axes = sns.heatmap(correlation, xticklabels=columns_names, yticklabels=columns_names, annot=True, cbar=False)
 axes.xaxis.tick_top()
 plt.show()
-# There is a lot of data, usually with good correlation to target
-# I decide to drop all features with correlation less than 0.6
-# In dataset number 2 it was a bad decision
-# But here is more features, 12 has correlation grater than 0.6
-# Using more features can easily overfit model, and make harder to analyse distribution, and collinearity
-# Analyse it is important, because I want to try is linear logistic accurate model for that data
-# Unfortunately data for linear logistic should be normally distributed, and not collinear
+""" There is a lot of data, usually with good correlation to target
+I decide to drop all features with correlation less than 0.6
+In dataset number 2 it was a bad decision
+But here is more features, 12 has correlation grater than 0.6
+Using more features can easily overfit model, and make harder to analyse distribution, and collinearity
+Analyse it is important, because I want to try is linear logistic accurate model for that data
+Unfortunately data for linear logistic should be normally distributed, and not collinear """
 
 target_correlation = correlation.get_column('Level')
 target_correlation = pl.DataFrame({'column_name': columns_names, 'correlation_to_target': target_correlation})
@@ -42,10 +41,10 @@ plt.clf()
 axes = sns.heatmap(correlation, xticklabels=relevant_col_names, yticklabels=relevant_col_names, annot=True, cbar=False)
 axes.xaxis.tick_top()
 plt.show()
-# I just realized, I don't have range data, so Logistic Regression is inappropriate model
-# Looking for collinearity probably don't have sens.
-# Again try model from bayes family, but I will check MultinomialNB,
-# because there is more options in features, that only true/false
+""" I just realized, I don't have range data, so Logistic Regression is inappropriate model
+Looking for collinearity probably don't have sens.
+Again try model from bayes family, but I will check MultinomialNB,
+because there is more options in features, that only true/false """
 
 # Check majority group to have reference point is model good
 major_counts = data.group_by('Level').len().max().select('len')
@@ -97,10 +96,10 @@ print('\n--------------------- Random Forest Classifier relevant features ------
 print('train score:', round(training_score, 2))
 testing_score = rfc.score(model_test_features, test_target)
 print('test score:', round(testing_score, 2))
-# Model is very good, and achieve 100% accuracy, with max_depth=5
-# I set max_depth to 4, to be able to plot confusing matrix
-# I think it can be useful for real applications, when accuracy is not best score
-# because predicting some values, here high cancer risk can be more important, than general accuracy
+""" Model is very good, and achieve 100% accuracy, with max_depth=5
+I set max_depth to 4, to be able to plot confusing matrix
+I think it can be useful for real applications, when accuracy is not best score
+because predicting some values, here high cancer risk can be more important, than general accuracy """
 
 confusion_matrix = ConfusionMatrixDisplay.from_estimator(
     rfc,
@@ -113,10 +112,10 @@ confusion_matrix.ax_.set_title('Cancer risk confusion matrix')
 plt.show()
 
 
-# Conclusions:
-# There were multiple features in this data set
-# Drop some features, with low correlation to target was a good idea
-# Not for Naive Bayes, but more complex model get deal with that amount of information great
-# Using more features for Random Forest Classifier wasn't necessary
-# Even so, I'm not fully satisfied. That data set seem some artificial, and too easy
+""" Conclusions:
+There were multiple features in this data set
+Drop some features, with low correlation to target was a good idea
+Not for Naive Bayes, but more complex model get deal with that amount of information great
+Using more features for Random Forest Classifier wasn't necessary
+Even so, I'm not fully satisfied. That data set seem some artificial, and too easy """
 

@@ -1,6 +1,5 @@
 import polars as pl
 import numpy as np
-from sklearn.model_selection import train_test_split
 
 
 # Binding numpy dot function to polars
@@ -14,6 +13,7 @@ class AdalineGD:
         self.eta = eta
         self.n_iterations = n_iterations
         self.__random_generator = np.random.RandomState(random_state)
+        self.weights = None
 
     def fit(self, features: pl.DataFrame, target):
         self.weights = pl.DataFrame(self.__random_generator.normal(loc=0., scale=0.01, size=features.width))
@@ -30,24 +30,18 @@ class AdalineGD:
         return self
 
     def predict(self, features: pl.DataFrame) -> pl.DataFrame:
-        activation_force = self.weights * features + self.bias
-        return activation_force.select(pl.when(pl.col('column_1') >= 0.5).then(1).otherwise(0).alias('prediction'))
+        activation_force = features.dot(self.weights) + self.bias
+        return activation_force.select(pl.when(pl.col('column_0') >= 0.5).then(1).otherwise(0).alias('prediction'))
 
-
-data_url = 'https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data'
-data = pl.read_csv(data_url, has_header=False)
-
-data = data.drop_nulls()
-data = data.limit(100)
-
-target = data.select(pl.when(pl.col('column_5') == 'Iris-setosa').then(0).otherwise(1).alias('target'))
-features = data.select(pl.col('column_1', 'column_3')).rename({'column_1': 'Sepal length',  'column_3': 'Petal length'})
-
-
-train_features, test_features, train_target, test_target = train_test_split(features,
-                                                                            target,
-                                                                            stratify=target,
-                                                                            random_state=42,
-                                                                            train_size=0.75)
+    def score(self, features, target):
+        if self.weights is None:
+            raise Exception('Fit method haven\'t been used!')
+        results = self.predict(features)
+        correct_predictions = 0
+        for prediction, true_result in zip(results.iter_rows(), target.iter_rows()):
+            if prediction == true_result:
+                correct_predictions += 1
+        score = correct_predictions / len(target)
+        return score
 
 

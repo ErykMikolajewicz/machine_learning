@@ -1,7 +1,6 @@
 from time import time
 
 import polars as pl
-from sklearn.model_selection import train_test_split
 import numpy as np
 import pandas as pd
 
@@ -10,8 +9,7 @@ from adaline import AdalineGD
 from from_books.perceptron import NumpyPerceptron
 from from_books.adaline import NumpyAdalineGD
 
-"""Comparisons of my perceptron implementation, and implementation from book
-using classical iris dataset """
+"""Comparisons of my perceptron implementation, and implementation from book using classical iris dataset """
 
 
 data_url = 'https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data'
@@ -23,12 +21,6 @@ data = data.limit(100)
 target = data.select(pl.when(pl.col('column_5') == 'Iris-setosa').then(0).otherwise(1).alias('target'))
 features = data.select(pl.col('column_1', 'column_3')).rename({'column_1': 'Sepal length',  'column_3': 'Petal length'})
 
-
-train_features, test_features, train_target, test_target = train_test_split(features,
-                                                                            target,
-                                                                            stratify=target,
-                                                                            random_state=42,
-                                                                            train_size=0.75)
 
 # Fragment from book to get data in numpy format
 df = pd.read_csv('https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data', header=None,
