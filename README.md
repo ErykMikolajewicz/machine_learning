@@ -25,3 +25,11 @@ In that project I reimplement perceptron written with numpy to polars dataframes
 5 comparisons
 Actually comparison of numpy perceptron with polars perceptron execution time
 In future perhaps some more efficiency benchmarks
+
+6 adaline
+My implementation of adaptive linear neuron (adaline), base on another implementation in book
+In that project I reimplement adaline written with numpy to polars dataframes
+
+7 sun_spots
+Time series forecasting, with scikit learn SGDRegressor. Moderate good results R^2 > 0.85 on both sets
+Also I develop my features selecting abilities, and use L1 penalty to identify irrelevant features during training
