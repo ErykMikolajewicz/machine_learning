@@ -33,3 +33,6 @@ In that project I reimplement adaline written with numpy to polars dataframes
 7 sun_spots
 Time series forecasting, with scikit learn SGDRegressor. Moderate good results R^2 > 0.85 on both sets
 Also I develop my features selecting abilities, and use L1 penalty to identify irrelevant features during training
+
+8 sun_spots_pandas
+Rewrite sun_spots to pandas. In addition, use l1 penalty to make feature selection.
